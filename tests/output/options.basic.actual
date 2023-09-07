@@ -1,7 +1,0 @@
-
-                                           
-  The "optional" argument does not exist.  
-                                           
-
-cmd [--basic] [--require REQUIRE] [--optional [OPTIONAL]] [--negatable|--no-negatable] [-s|--shortcut SHORTCUT]
-
