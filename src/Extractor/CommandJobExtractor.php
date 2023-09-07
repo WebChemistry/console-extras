@@ -36,12 +36,15 @@ final class CommandJobExtractor
 				throw new LogicException(sprintf('Schedule of command %s must be string.', $command::class));
 			}
 
+			$description = $command->getDescription();
+
 			$return[] = new CommandJob(
 				$schedule,
 				$attribute->name ?? $commandName,
 				$commandName,
 				$attribute->arguments,
 				$attribute->options,
+				$command::class . ($description ? ' - ' . $description : ''),
 			);
 		}
 

@@ -56,16 +56,23 @@ class MakeJobsCommand extends ExtraCommand
 			throw new LogicException('Kubernetes config is not set.');
 		}
 
-		$items = [];
-
-		foreach ($jobs as $job) {
-			$items[] = $config->create($job);
+		$last = count($jobs) - 1;
+		
+		foreach ($jobs as $i => $job) {
+			if ($job->comment) {
+				$output->writeln(sprintf('# %s', $job->comment));
+			}
+			
+			$output->writeln(Yaml::dump(
+				$config->create($job), 
+				10, 
+				flags: Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE,
+			));
+			
+			if ($i !== $last) {
+				$output->writeln('---');
+			}
 		}
-
-		$output->writeln(implode("---\n", array_map(
-			fn (array $item) => Yaml::dump($item, 10, flags: Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE),
-			$items,
-		)));
 	}
 
 }
