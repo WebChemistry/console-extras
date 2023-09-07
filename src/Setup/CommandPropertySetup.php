@@ -2,6 +2,7 @@
 
 namespace WebChemistry\ConsoleExtras\Setup;
 
+use BackedEnum;
 use Symfony\Component\Console\Input\InputInterface;
 use WebChemistry\ConsoleExtras\Exception\InvalidCommandValueException;
 use WebChemistry\ConsoleExtras\Extractor\CommandArgument;
@@ -114,6 +115,12 @@ final class CommandPropertySetup
 			return $value;
 		}
 
+		$enum = $this->tryEnum($value, $arg);
+
+		if ($enum) {
+			return $enum;
+		}
+
 		return null;
 	}
 
@@ -136,6 +143,30 @@ final class CommandPropertySetup
 			}
 			
 			return false;
+		}
+
+		return null;
+	}
+
+	private function tryEnum(mixed $value, CommandArgument|CommandOption $arg): ?BackedEnum
+	{
+		if (!is_string($value)) {
+			return null;
+		}
+
+		foreach ($arg->types as $type) {
+			if (is_subclass_of($type, BackedEnum::class)) {
+				$return = $type::tryFrom($value);
+
+				if ($return === null) {
+					throw new InvalidCommandValueException($arg->name, sprintf('Value must be one of "%s", %s given.', implode(', ', array_map(
+						fn (BackedEnum $enum) => $enum->value,
+						$type::cases(),
+					)), $value));
+				}
+
+				return $return;
+			}
 		}
 
 		return null;
