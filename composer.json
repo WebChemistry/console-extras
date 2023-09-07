@@ -1,0 +1,17 @@
+{
+    "name": "webchemistry/console-extras",
+    "require": {
+        "php": ">= 8.1",
+        "symfony/console": "^5.4 || ^6.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "WebChemistry\\ConsoleExtras\\": "src"
+        }
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "nette/tester": "^2.5",
+        "symfony/validator": "^6.3"
+    }
+}
