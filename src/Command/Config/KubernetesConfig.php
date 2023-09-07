@@ -20,6 +20,7 @@ final class KubernetesConfig
 		array $container = [],
 		private int $backoffLimit = 0,
 		private readonly ?string $namespace = null,
+		private string $namePattern = '%s',
 	)
 	{
 		$this->container = [
@@ -40,7 +41,7 @@ final class KubernetesConfig
 			'apiVersion' => 'batch/v1',
 			'kind' => 'CronJob',
 			'metadata' => [
-				'name' => strtolower(str_replace(':', '-', $job->name)),
+				'name' => sprintf($this->namePattern, strtolower(str_replace(':', '-', $job->name))),
 			],
 			'spec' => [
 				'schedule' => $job->schedule,
