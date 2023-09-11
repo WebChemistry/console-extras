@@ -8,7 +8,7 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use WebChemistry\ConsoleExtras\Exception\TerminateCommandException;
+use WebChemistry\ConsoleExtras\Exception\SuccessfullyTerminateCommand;
 
 final class ConsoleHelper
 {
@@ -53,7 +53,7 @@ final class ConsoleHelper
 		$result = $this->question($message, $default);
 
 		if (!$result) {
-			throw new TerminateCommandException();
+			throw new SuccessfullyTerminateCommand();
 		}
 	}
 
