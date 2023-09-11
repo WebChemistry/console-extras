@@ -15,6 +15,7 @@ final class CommandPropertySetup
 	 * @param CommandArgument[] $arguments
 	 * @param CommandOption[] $options
 	 * @return array<string, mixed>
+	 * @throws InvalidCommandValueException
 	 */
 	public function setup(array $arguments, array $options, InputInterface $input): array
 	{

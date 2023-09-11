@@ -9,10 +9,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use WebChemistry\ConsoleExtras\Attribute\Description;
 use WebChemistry\ConsoleExtras\Exception\InvalidCommandValueException;
+use WebChemistry\ConsoleExtras\Exception\TerminateCommand;
 use WebChemistry\ConsoleExtras\Extractor\CommandArgument;
 use WebChemistry\ConsoleExtras\Extractor\CommandOption;
 use WebChemistry\ConsoleExtras\Extractor\CommandPropertyExtractor;
 use WebChemistry\ConsoleExtras\Builder\CommandDefinitionPropertyBuilder;
+use WebChemistry\ConsoleExtras\Helper\ConsoleHelper;
 use WebChemistry\ConsoleExtras\Setup\CommandPropertySetup;
 
 abstract class ExtraCommand extends Command
@@ -25,6 +27,8 @@ abstract class ExtraCommand extends Command
 	private array $options;
 
 	private ValidatorInterface $validator;
+
+	protected ConsoleHelper $helper;
 
 	public function __construct(?string $name = null)
 	{
@@ -59,6 +63,11 @@ abstract class ExtraCommand extends Command
 		}
 	}
 
+	protected function initialize(InputInterface $input, OutputInterface $output): void
+	{
+		$this->helper = new ConsoleHelper($this, $input, $output);
+	}
+
 	final protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		try {
@@ -85,7 +94,11 @@ abstract class ExtraCommand extends Command
 			}
 		}
 
-		$this->exec($input, $output);
+		try {
+			$this->exec($input, $output);
+		} catch (TerminateCommand $exception) {
+			return $exception->getTerminateCode();
+		}
 
 		return self::SUCCESS;
 	}
