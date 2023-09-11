@@ -31,6 +31,7 @@ final class ConsoleHelper
 			sprintf('<comment>[%s]</comment>', $default ? 'yes' : 'no')
 		);
 
+		/** @var bool */
 		return $helper->ask(
 			$this->input,
 			$this->output,

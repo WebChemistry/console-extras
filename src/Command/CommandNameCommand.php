@@ -27,7 +27,13 @@ final class CommandNameCommand extends ExtraCommand
 
 		foreach ($application->all() as $command) {
 			if (is_a($command, $this->className, true)) {
-				$output->write($command->getName());
+				$name = $command->getName();
+
+				if (!$name) {
+					throw new RuntimeException(sprintf('Command %s has no name.', $this->className));
+				}
+
+				$output->write($name);
 
 				return true;
 			}
