@@ -76,6 +76,7 @@ final class KubernetesConfig
 
 		$this->insertDeepKey($container, 'resources.requests.cpu', $options['cpu'] ?? null);
 		$this->insertDeepKey($container, 'resources.requests.memory', $options['memory'] ?? null);
+		$this->insertDeepKey($container, 'resources.requests.ephemeral-storage', $options['storage'] ?? null);
 
 		return [
 			'spec' => [
