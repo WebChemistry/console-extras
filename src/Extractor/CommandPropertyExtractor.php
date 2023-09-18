@@ -23,7 +23,7 @@ final class CommandPropertyExtractor
 	public function extract(object $object): array
 	{
 		$reflectionProperties = (new ReflectionClass($object))
-			->getProperties(ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PUBLIC);
+			->getProperties();
 
 		return [
 			$this->extractArguments($reflectionProperties),
@@ -44,6 +44,10 @@ final class CommandPropertyExtractor
 
 			if (!$attribute) {
 				continue;
+			}
+
+			if ($reflection->isPrivate() || $reflection->isStatic()) {
+				throw new LogicException(sprintf('Argument %s must be public or protected and non-static.', $reflection->getName()));
 			}
 
 			$description = $this->getAttribute($reflection, Description::class);
@@ -81,6 +85,10 @@ final class CommandPropertyExtractor
 
 			if (!$attribute) {
 				continue;
+			}
+
+			if ($reflection->isPrivate() || $reflection->isStatic()) {
+				throw new LogicException(sprintf('Option %s must be public or protected and non-static.', $reflection->getName()));
 			}
 
 			$description = $this->getAttribute($reflection, Description::class);
