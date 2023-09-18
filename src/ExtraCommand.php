@@ -103,6 +103,6 @@ abstract class ExtraCommand extends Command
 		return self::SUCCESS;
 	}
 
-	abstract protected function exec(InputInterface $input, OutputInterface $output): bool;
+	abstract protected function exec(InputInterface $input, OutputInterface $output): void;
 
 }
