@@ -3,6 +3,9 @@
 namespace WebChemistry\ConsoleExtras\Setup;
 
 use BackedEnum;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use WebChemistry\ConsoleExtras\Exception\InvalidCommandValueException;
 use WebChemistry\ConsoleExtras\Extractor\CommandArgument;
@@ -43,6 +46,12 @@ final class CommandPropertySetup
 			if ($return !== null) {
 				return $return;
 			}
+		}
+
+		$return = $this->tryDateTime($value, $arg);
+
+		if ($return !== null) {
+			return $return;
 		}
 
 		if (in_array('bool', $types, true)) {
@@ -168,6 +177,23 @@ final class CommandPropertySetup
 
 				return $return;
 			}
+		}
+
+		return null;
+	}
+
+	private function tryDateTime(mixed $value, CommandArgument|CommandOption $arg): ?DateTimeInterface
+	{
+		if (!is_string($value)) {
+			return null;
+		}
+
+		if (in_array(DateTimeInterface::class, $arg->types, true) || in_array(DateTimeImmutable::class, $arg->types, true)) {
+			return new DateTimeImmutable($value);
+		}
+
+		if (in_array(DateTime::class, $arg->types, true)) {
+			return new DateTime($value);
 		}
 
 		return null;
