@@ -8,10 +8,13 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use WebChemistry\ConsoleExtras\Exception\ErroneouslyTerminateCommand;
 use WebChemistry\ConsoleExtras\Exception\SuccessfullyTerminateCommand;
 
 final class ConsoleHelper
 {
+
+	private bool $errors = false;
 
 	public function __construct(
 		private Command $command,
@@ -39,6 +42,38 @@ final class ConsoleHelper
 		);
 	}
 
+	public function fatalError(string $error): never
+	{
+		$this->error($error);
+
+		$this->terminate();
+	}
+
+	public function error(string $error): void
+	{
+		$this->errors = true;
+
+		if (!$this->output->getFormatter()->hasStyle('error')) {
+			$this->output->getFormatter()->setStyle('error', new OutputFormatterStyle('red'));
+		}
+
+		$this->output->writeln(sprintf('<error>Error: %s</error>', $error));
+	}
+
+	public function success(string $message): void
+	{
+		if (!$this->output->getFormatter()->hasStyle('success')) {
+			$this->output->getFormatter()->setStyle('success', new OutputFormatterStyle('green'));
+		}
+
+		$this->output->writeln(sprintf('<success>%s</success>', $message));
+	}
+
+	public function comment(string $message): void
+	{
+		$this->output->writeln(sprintf('<comment>%s</comment>', $message));
+	}
+
 	public function warning(string $message): void
 	{
 		if (!$this->output->getFormatter()->hasStyle('warning')) {
@@ -55,6 +90,15 @@ final class ConsoleHelper
 		if (!$result) {
 			throw new SuccessfullyTerminateCommand();
 		}
+	}
+
+	public function terminate(?bool $success = null): never
+	{
+		if ($success === false || ($success === null && $this->errors)) {
+			throw new ErroneouslyTerminateCommand();
+		}
+
+		throw new SuccessfullyTerminateCommand();
 	}
 
 }
