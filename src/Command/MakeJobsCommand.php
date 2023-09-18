@@ -28,7 +28,7 @@ class MakeJobsCommand extends ExtraCommand
 		parent::__construct();
 	}
 
-	protected function exec(InputInterface $input, OutputInterface $output): bool
+	protected function exec(InputInterface $input, OutputInterface $output): void
 	{
 		$application = $this->getApplication();
 
@@ -41,8 +41,6 @@ class MakeJobsCommand extends ExtraCommand
 		if ($this->format === 'k8s') {
 			$this->kubernetes($jobs, $output);
 		}
-
-		return true;
 	}
 
 	/**

@@ -17,7 +17,7 @@ final class CommandNameCommand extends ExtraCommand
 	#[Argument]
 	protected string $className;
 
-	protected function exec(InputInterface $input, OutputInterface $output): bool
+	protected function exec(InputInterface $input, OutputInterface $output): void
 	{
 		$application = $this->getApplication();
 
@@ -35,11 +35,9 @@ final class CommandNameCommand extends ExtraCommand
 
 				$output->write($name);
 
-				return true;
+				return;
 			}
 		}
-
-		return false;
 	}
 
 }
