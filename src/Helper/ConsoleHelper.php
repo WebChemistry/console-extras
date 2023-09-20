@@ -24,6 +24,19 @@ final class ConsoleHelper
 	{
 	}
 
+	public function configureStyles(): void
+	{
+		$formatter = $this->output->getFormatter();
+
+		$formatter->setStyle('strong', new OutputFormatterStyle(options: [
+			'bold',
+		]));
+		$formatter->setStyle('error', new OutputFormatterStyle('red'));
+		$formatter->setStyle('success', new OutputFormatterStyle('green'));
+		$formatter->setStyle('green', new OutputFormatterStyle('green'));
+		$formatter->setStyle('warning', new OutputFormatterStyle('bright-yellow'));
+	}
+
 	public function question(string $question, bool $default = false): bool
 	{
 		$helper = $this->command->getHelper('question');
