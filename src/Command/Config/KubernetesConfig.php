@@ -45,7 +45,7 @@ final class KubernetesConfig
 			],
 			'spec' => [
 				'schedule' => $job->schedule,
-				'jobTemplate' => $this->createJobTemplate($job->commandName, $job->arguments, $job->options),
+				'jobTemplate' => $this->createJobTemplate($job->className, $job->arguments, $job->options),
 			],
 		];
 
@@ -61,14 +61,15 @@ final class KubernetesConfig
 	 * @param mixed[] $options
 	 * @return mixed[]
 	 */
-	public function createJobTemplate(string $name, array $arguments, array $options): array
+	public function createJobTemplate(string $className, array $arguments, array $options): array
 	{
 		$backoffLimit = $options['backoffLimit'] ?? $this->backoffLimit;
 		$restartPolicy = $options['restartPolicy'] ?? 'Never';
 
 
 		$container = $this->container;
-		$container['command'][] = $name; // @phpstan-ignore-line
+		$container['command'][] = 'jobs:run'; // @phpstan-ignore-line
+		$container['command'][] = $className; // @phpstan-ignore-line
 		$container['command'] = array_merge(
 			$container['command'], // @phpstan-ignore-line
 			$arguments,

@@ -10,6 +10,7 @@ final class CommandJob
 	 * @param mixed[] $options
 	 */
 	public function __construct(
+		public readonly string $className,
 		public readonly string $schedule,
 		public readonly string $name,
 		public readonly string $commandName,

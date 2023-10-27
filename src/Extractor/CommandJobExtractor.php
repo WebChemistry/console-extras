@@ -39,6 +39,7 @@ final class CommandJobExtractor
 			$description = $command->getDescription();
 
 			$return[] = new CommandJob(
+				$command::class,
 				$schedule,
 				$attribute->name ?? $commandName,
 				$commandName,
