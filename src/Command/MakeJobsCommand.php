@@ -15,7 +15,7 @@ use WebChemistry\ConsoleExtras\Extractor\CommandJobExtractor;
 class MakeJobsCommand extends ExtraCommand
 {
 
-	protected static $defaultName = 'make:jobs';
+	protected static $defaultName = 'jobs:make';
 
 	#[Description('Format of output')]
 	#[Option]
@@ -55,18 +55,18 @@ class MakeJobsCommand extends ExtraCommand
 		}
 
 		$last = count($jobs) - 1;
-		
+
 		foreach ($jobs as $i => $job) {
 			if ($job->comment) {
 				$output->writeln(sprintf('# %s', $job->comment));
 			}
-			
+
 			$output->writeln(Yaml::dump(
-				$config->create($job), 
-				10, 
+				$config->create($job),
+				10,
 				flags: Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE,
 			));
-			
+
 			if ($i !== $last) {
 				$output->writeln('---');
 			}
