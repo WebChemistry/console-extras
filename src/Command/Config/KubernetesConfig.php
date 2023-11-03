@@ -5,6 +5,17 @@ namespace WebChemistry\ConsoleExtras\Command\Config;
 use WebChemistry\ConsoleExtras\Command\CommandJobGroup;
 use WebChemistry\ConsoleExtras\Command\RunJobCommand;
 
+/**
+ * @phpstan-type KubernetesConfigOptions array{
+ *      concurrencyPolicy?: 'Allow' | 'Forbid' | 'Replace',
+ *      backoffLimit?: int,
+ *      restartPolicy?: 'Never' | 'OnFailure',
+ *      successfulJobsHistoryLimit?: int,
+ *      failedJobsHistoryLimit?: int,
+ *      timeZone?: string,
+ *      ttlSecondsAfterFinished?: int,
+ * }
+ */
 final class KubernetesConfig
 {
 
@@ -35,15 +46,7 @@ final class KubernetesConfig
 
 	/**
 	 * @param CommandJobGroup $group
-	 * @return array{
-	 *     concurrencyPolicy?: 'Allow' | 'Forbid' | 'Replace',
-	 *     backoffLimit?: int,
-	 *     restartPolicy?: 'Never' | 'OnFailure',
-	 *     successfulJobsHistoryLimit?: int,
-	 *     failedJobsHistoryLimit?: int,
-	 *     timeZone?: string,
-	 *     ttlSecondsAfterFinished?: int,
-	 * }
+	 * @return KubernetesConfigOptions
 	 */
 	private function getOptions(CommandJobGroup $group): array
 	{
