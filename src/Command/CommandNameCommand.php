@@ -4,7 +4,6 @@ namespace WebChemistry\ConsoleExtras\Command;
 
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use WebChemistry\ConsoleExtras\Attribute\Argument;
 use WebChemistry\ConsoleExtras\ExtraCommand;

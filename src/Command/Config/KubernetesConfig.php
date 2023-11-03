@@ -2,7 +2,8 @@
 
 namespace WebChemistry\ConsoleExtras\Command\Config;
 
-use WebChemistry\ConsoleExtras\Command\CommandJob;
+use WebChemistry\ConsoleExtras\Command\CommandJobGroup;
+use WebChemistry\ConsoleExtras\Command\RunJobCommand;
 
 final class KubernetesConfig
 {
@@ -35,17 +36,17 @@ final class KubernetesConfig
 	/**
 	 * @return mixed[]
 	 */
-	public function create(CommandJob $job): array
+	public function create(CommandJobGroup $group): array
 	{
 		$config = [
 			'apiVersion' => 'batch/v1',
 			'kind' => 'CronJob',
 			'metadata' => [
-				'name' => sprintf($this->namePattern, strtolower(str_replace(':', '-', $job->name))),
+				'name' => sprintf($this->namePattern, strtolower(str_replace(':', '-', $group->getJobName()))),
 			],
 			'spec' => [
-				'schedule' => $job->schedule,
-				'jobTemplate' => $this->createJobTemplate($job->className, $job->arguments, $job->options),
+				'schedule' => $group->schedule,
+				'jobTemplate' => $this->createJobTemplate($group),
 			],
 		];
 
@@ -57,23 +58,24 @@ final class KubernetesConfig
 	}
 
 	/**
-	 * @param mixed[] $arguments
-	 * @param mixed[] $options
 	 * @return mixed[]
 	 */
-	public function createJobTemplate(string $className, array $arguments, array $options): array
+	public function createJobTemplate(CommandJobGroup $group): array
 	{
+		$options = $group->options;
+
 		$backoffLimit = $options['backoffLimit'] ?? $this->backoffLimit;
 		$restartPolicy = $options['restartPolicy'] ?? 'Never';
 
+		$commandBuilder = RunJobCommand::createBuilder();
+
+		foreach ($group->jobs as $job) {
+			$commandBuilder->add($job->className, $job->arguments);
+		}
 
 		$container = $this->container;
 		$container['command'][] = 'jobs:run'; // @phpstan-ignore-line
-		$container['command'][] = $className; // @phpstan-ignore-line
-		$container['command'] = array_merge(
-			$container['command'], // @phpstan-ignore-line
-			$arguments,
-		);
+		$container['command'][] = $commandBuilder->build(); // @phpstan-ignore-line
 
 		$this->insertDeepKey($container, 'resources.requests.cpu', $options['cpu'] ?? null);
 		$this->insertDeepKey($container, 'resources.requests.memory', $options['memory'] ?? null);

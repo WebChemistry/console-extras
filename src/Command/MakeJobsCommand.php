@@ -44,9 +44,9 @@ class MakeJobsCommand extends ExtraCommand
 	}
 
 	/**
-	 * @param CommandJob[] $jobs
+	 * @param CommandJobGroup[] $groups
 	 */
-	protected function kubernetes(array $jobs, OutputInterface $output): void
+	protected function kubernetes(array $groups, OutputInterface $output): void
 	{
 		$config = $this->kubernetesConfig;
 
@@ -54,15 +54,17 @@ class MakeJobsCommand extends ExtraCommand
 			throw new LogicException('Kubernetes config is not set.');
 		}
 
-		$last = count($jobs) - 1;
+		$last = count($groups) - 1;
 
-		foreach ($jobs as $i => $job) {
-			if ($job->comment) {
-				$output->writeln(sprintf('# %s', $job->comment));
+		foreach ($groups as $i => $group) {
+			$comment = $group->getComment();
+
+			if ($comment) {
+				$output->writeln($comment);
 			}
 
 			$output->writeln(Yaml::dump(
-				$config->create($job),
+				$config->create($group),
 				10,
 				flags: Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE,
 			));

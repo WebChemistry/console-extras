@@ -4,6 +4,7 @@ namespace WebChemistry\ConsoleExtras\Attribute;
 
 use Attribute;
 use BackedEnum;
+use WebChemistry\ConsoleExtras\Group\GroupedSchedule;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 final class Job
@@ -15,7 +16,7 @@ final class Job
 	 * @param mixed[] $options
 	 */
 	public function __construct(
-		public readonly string|BackedEnum $schedule,
+		public readonly string|GroupedSchedule|BackedEnum $schedule,
 		public readonly array $arguments = [],
 		public readonly array $options = [],
 		public readonly ?string $name = null,

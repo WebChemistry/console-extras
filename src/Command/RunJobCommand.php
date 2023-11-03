@@ -3,10 +3,12 @@
 namespace WebChemistry\ConsoleExtras\Command;
 
 use LogicException;
+use Nette\Utils\Json;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WebChemistry\ConsoleExtras\Attribute\Argument;
+use WebChemistry\ConsoleExtras\Command\Builder\RunJobBuilder;
 use WebChemistry\ConsoleExtras\ExtraCommand;
 
 final class RunJobCommand extends ExtraCommand
@@ -15,7 +17,12 @@ final class RunJobCommand extends ExtraCommand
 	protected static $defaultName = 'jobs:run';
 
 	#[Argument]
-	protected string $className;
+	protected string $json;
+
+	public static function createBuilder(): RunJobBuilder
+	{
+		return new RunJobBuilder();
+	}
 
 	protected function exec(InputInterface $input, OutputInterface $output): void
 	{
@@ -25,23 +32,46 @@ final class RunJobCommand extends ExtraCommand
 			throw new LogicException('Application is not set.');
 		}
 
-		$this->className = strtr($this->className, '/', '\\');
+		$struct = Json::decode($this->json, Json::FORCE_ARRAY);
+		$toRun = [];
 
-		if (!class_exists($this->className)) {
-			$this->helper->error(sprintf('Class %s does not exist.', $this->className));
+		if (!is_array($struct)) {
+			throw new LogicException('Json must be an array.');
 		}
 
-		foreach ($application->all() as $command) {
-			if (is_a($command, $this->className, true)) {
-				$application->run(new ArrayInput([
-					'command' => $command->getName(),
-				]));
+		foreach ($struct as [$className, $arguments]) {
+			$className = strtr($className, '/', '\\');
 
-				return;
+			if (!class_exists($className)) {
+				$this->helper->error(sprintf('Class %s does not exist.', $className));
 			}
+
+			foreach ($application->all() as $command) {
+				if (is_a($command, $className, true)) {
+					$toRun[] = [
+						$className,
+						new ArrayInput([
+							'command' => $command->getName(),
+							...$arguments,
+						]),
+					];
+
+					continue 2;
+				}
+			}
+
+			$this->helper->error(sprintf('Command %s does not exist.', $className));
 		}
 
-		$this->helper->error(sprintf('Command %s does not exist.', $this->className));
+		$printName = count($toRun) > 1;
+
+		foreach ($toRun as [$className, $input]) {
+			if ($printName) {
+				$this->helper->comment(sprintf('Running %s', $className));
+			}
+
+			$application->run($input, $output);
+		}
 	}
 
 }

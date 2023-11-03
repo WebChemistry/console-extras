@@ -3,7 +3,6 @@
 namespace WebChemistry\ConsoleExtras\Extractor;
 
 use LogicException;
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionIntersectionType;
 use ReflectionNamedType;

@@ -10,8 +10,9 @@ require __DIR__ . '/../vendor/autoload.php';
 
 /**
  * @param array<string, string> $arguments
+ * @param Command[] $commands
  */
-function runConsoleApp(Command $command, array $arguments = [], bool $help = false, string $name = 'cmd'): string
+function runConsoleApp(Command $command, array $arguments = [], bool $help = false, string $name = 'cmd', array $commands = []): string
 {
 	$command->setName($name);
 
@@ -27,6 +28,11 @@ function runConsoleApp(Command $command, array $arguments = [], bool $help = fal
 	$app = new Application();
 	$app->setAutoExit(false);
 	$app->add($command);
+
+	foreach ($commands as $command) {
+		$app->add($command);
+	}
+
 	$app->run(
 		new ArrayInput($arguments),
 		$output = new BufferedOutput(),

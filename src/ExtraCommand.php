@@ -8,12 +8,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use WebChemistry\ConsoleExtras\Attribute\Description;
+use WebChemistry\ConsoleExtras\Builder\CommandDefinitionPropertyBuilder;
 use WebChemistry\ConsoleExtras\Exception\InvalidCommandValueException;
 use WebChemistry\ConsoleExtras\Exception\TerminateCommand;
 use WebChemistry\ConsoleExtras\Extractor\CommandArgument;
 use WebChemistry\ConsoleExtras\Extractor\CommandOption;
 use WebChemistry\ConsoleExtras\Extractor\CommandPropertyExtractor;
-use WebChemistry\ConsoleExtras\Builder\CommandDefinitionPropertyBuilder;
 use WebChemistry\ConsoleExtras\Helper\ConsoleHelper;
 use WebChemistry\ConsoleExtras\Setup\CommandPropertySetup;
 

@@ -6,8 +6,8 @@ final class CommandJob
 {
 
 	/**
+	 * @param class-string $className
 	 * @param mixed[] $arguments
-	 * @param mixed[] $options
 	 */
 	public function __construct(
 		public readonly string $className,
@@ -15,7 +15,6 @@ final class CommandJob
 		public readonly string $name,
 		public readonly string $commandName,
 		public readonly array $arguments = [],
-		public readonly array $options = [],
 		public readonly string $comment = '',
 	)
 	{

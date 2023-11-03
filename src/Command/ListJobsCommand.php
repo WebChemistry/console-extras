@@ -22,21 +22,30 @@ final class ListJobsCommand extends ExtraCommand
 			throw new LogicException('Application is not set.');
 		}
 
-		$jobs = (new CommandJobExtractor())->extract($application->all());
+		$groups = (new CommandJobExtractor())->extract($application->all());
 
 		$table = new Table($output);
 
 		$table->setHeaders([
 			'Command',
+			'Description',
 			'Schedule',
+			'Group',
 		]);
-		foreach ($jobs as $job) {
-			$table->addRow([
-				$job->comment ?: $job->name,
-				$job->schedule,
-			]);
+
+		ksort($groups);
+
+		foreach ($groups as $group) {
+			foreach ($group->jobs as $job) {
+				$table->addRow([
+					$job->className,
+					$job->comment,
+					$job->schedule,
+					$group->name,
+				]);
+			}
 		}
-		
+
 		$table->render();
 	}
 
