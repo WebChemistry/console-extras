@@ -60,7 +60,6 @@ final class CommandJobExtractor
 			$groupClass->addJob(new CommandJob(
 				$command::class,
 				$schedule,
-				$attribute->name ?? $commandName,
 				$commandName,
 				$attribute->arguments,
 				$command->getDescription(),

@@ -38,7 +38,7 @@ final class CommandJobGroup
 			throw new LogicException('No job found.');
 		}
 
-		return $job->name;
+		return $job->commandName;
 	}
 
 	public function addJob(CommandJob $job, Command $command, string $description): self
