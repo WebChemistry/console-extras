@@ -34,10 +34,29 @@ final class KubernetesConfig
 	}
 
 	/**
+	 * @param CommandJobGroup $group
+	 * @return array{
+	 *     concurrencyPolicy?: 'Allow' | 'Forbid' | 'Replace',
+	 *     backoffLimit?: int,
+	 *     restartPolicy?: 'Never' | 'OnFailure',
+	 *     successfulJobsHistoryLimit?: int,
+	 *     failedJobsHistoryLimit?: int,
+	 *     timeZone?: string,
+	 *     ttlSecondsAfterFinished?: int,
+	 * }
+	 */
+	private function getOptions(CommandJobGroup $group): array
+	{
+		return $group->options; // @phpstan-ignore-line
+	}
+
+	/**
 	 * @return mixed[]
 	 */
 	public function create(CommandJobGroup $group): array
 	{
+		$options = $this->getOptions($group);
+
 		$config = [
 			'apiVersion' => 'batch/v1',
 			'kind' => 'CronJob',
@@ -49,6 +68,12 @@ final class KubernetesConfig
 				'jobTemplate' => $this->createJobTemplate($group),
 			],
 		];
+
+		$this->insertDeepKey($config, 'spec.successfulJobsHistoryLimit', $options['successfulJobsHistoryLimit'] ?? null);
+		$this->insertDeepKey($config, 'spec.failedJobsHistoryLimit', $options['failedJobsHistoryLimit'] ?? null);
+		$this->insertDeepKey($config, 'spec.concurrencyPolicy', $options['concurrencyPolicy'] ?? null);
+		$this->insertDeepKey($config, 'spec.timeZone', $options['timeZone'] ?? null);
+		$this->insertDeepKey($config, 'spec.ttlSecondsAfterFinished', $options['ttlSecondsAfterFinished'] ?? null);
 
 		if ($this->namespace) {
 			$config['metadata']['namespace'] = $this->namespace;
@@ -97,9 +122,9 @@ final class KubernetesConfig
 	}
 
 	/**
-	 * @param mixed[] $container
+	 * @param mixed[] $config
 	 */
-	private function insertDeepKey(array &$container, string $string, mixed $param): void
+	private function insertDeepKey(array &$config, string $string, mixed $param): void
 	{
 		if ($param === null) {
 			return;
@@ -109,14 +134,14 @@ final class KubernetesConfig
 		$last = array_pop($keys);
 
 		foreach ($keys as $key) {
-			if (!isset($container[$key])) { // @phpstan-ignore-line
-				$container[$key] = []; // @phpstan-ignore-line
+			if (!isset($config[$key])) { // @phpstan-ignore-line
+				$config[$key] = []; // @phpstan-ignore-line
 			}
 
-			$container = &$container[$key]; // @phpstan-ignore-line
+			$config = &$config[$key]; // @phpstan-ignore-line
 		}
 
-		$container[$last] = $param; // @phpstan-ignore-line
+		$config[$last] = $param; // @phpstan-ignore-line
 	}
 
 }
