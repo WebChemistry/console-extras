@@ -11,7 +11,7 @@ final class Job
 {
 
 	/**
-	 * @param string|BackedEnum $schedule minute hour day month dayOfWeek
+	 * @param string|GroupedSchedule|BackedEnum $schedule minute hour day month dayOfWeek
 	 * @param mixed[] $arguments
 	 * @param mixed[] $options
 	 */
