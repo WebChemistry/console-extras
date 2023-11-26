@@ -45,7 +45,7 @@ final class CommandJobExtractor
 			$attribute->arguments,
 			$command->getDescription(),
 			$group,
-			$attribute->slug ?? $commandName,
+			$attribute->slug ?? strtr($commandName, [':' => '-']),
 			$options,
 		);
 	}
