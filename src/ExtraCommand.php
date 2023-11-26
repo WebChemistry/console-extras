@@ -30,6 +30,15 @@ abstract class ExtraCommand extends Command
 
 	protected ConsoleHelper $helper;
 
+	/** @var array<callable(static $command, InputInterface $input, OutputInterface $output): void> */
+	public array $onStart = [];
+
+	/** @var array<callable(static $command, InputInterface $input, OutputInterface $output): void> */
+	public array $onSuccess = [];
+
+	/** @var array<callable(static $command, InputInterface $input, OutputInterface $output): void> */
+	public array $onError = [];
+
 	public function __construct(?string $name = null)
 	{
 		parent::__construct($name);
@@ -70,10 +79,18 @@ abstract class ExtraCommand extends Command
 
 	final protected function execute(InputInterface $input, OutputInterface $output): int
 	{
+		foreach ($this->onStart as $callback) {
+			$callback($this, $input, $output);
+		}
+
 		try {
 			$values = (new CommandPropertySetup())->setup($this->arguments, $this->options, $input);
 		} catch (InvalidCommandValueException $e) {
 			$output->writeln($e->getMessage());
+
+			foreach ($this->onError as $callback) {
+				$callback($this, $input, $output);
+			}
 
 			return self::FAILURE;
 		}
@@ -90,6 +107,10 @@ abstract class ExtraCommand extends Command
 					$output->writeln(sprintf('%s: %s', $error->getPropertyPath(), $error->getMessage()));
 				}
 
+				foreach ($this->onError as $callback) {
+					$callback($this, $input, $output);
+				}
+
 				return self::FAILURE;
 			}
 		}
@@ -97,7 +118,15 @@ abstract class ExtraCommand extends Command
 		try {
 			$this->exec($input, $output);
 		} catch (TerminateCommand $exception) {
+			foreach ($this->onError as $callback) {
+				$callback($this, $input, $output);
+			}
+
 			return $exception->getTerminateCode();
+		}
+
+		foreach ($this->onSuccess as $callback) {
+			$callback($this, $input, $output);
 		}
 
 		return self::SUCCESS;
