@@ -19,6 +19,7 @@ final class Job
 		public readonly string|GroupedSchedule|BackedEnum $schedule,
 		public readonly array $arguments = [],
 		public readonly array $options = [],
+		public readonly ?string $slug = null,
 	)
 	{
 	}

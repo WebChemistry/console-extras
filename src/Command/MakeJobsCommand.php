@@ -36,7 +36,7 @@ class MakeJobsCommand extends ExtraCommand
 			throw new LogicException('Application is not set.');
 		}
 
-		$jobs = (new CommandJobExtractor())->extract($application->all());
+		$jobs = (new CommandJobExtractor())->extractAll($application->all());
 
 		if ($this->format === 'k8s') {
 			$this->kubernetes($jobs, $output);

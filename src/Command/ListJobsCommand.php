@@ -22,7 +22,7 @@ final class ListJobsCommand extends ExtraCommand
 			throw new LogicException('Application is not set.');
 		}
 
-		$groups = (new CommandJobExtractor())->extract($application->all());
+		$groups = (new CommandJobExtractor())->extractAll($application->all());
 
 		$table = new Table($output);
 
