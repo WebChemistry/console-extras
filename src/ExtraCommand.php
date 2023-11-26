@@ -4,9 +4,11 @@ namespace WebChemistry\ConsoleExtras;
 
 use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Throwable;
 use WebChemistry\ConsoleExtras\Attribute\Description;
 use WebChemistry\ConsoleExtras\Builder\CommandDefinitionPropertyBuilder;
 use WebChemistry\ConsoleExtras\Exception\InvalidCommandValueException;
@@ -75,6 +77,22 @@ abstract class ExtraCommand extends Command
 	protected function initialize(InputInterface $input, OutputInterface $output): void
 	{
 		$this->helper = new ConsoleHelper($this, $input, $output);
+	}
+
+	/**
+	 * @throws Throwable
+	 */
+	public function run(InputInterface $input, OutputInterface $output): int
+	{
+		try {
+			return parent::run($input, $output);
+		} catch (Throwable $exception) {
+			foreach ($this->onError as $callback) {
+				$callback($this, $input, $output);
+			}
+
+			throw $exception;
+		}
 	}
 
 	final protected function execute(InputInterface $input, OutputInterface $output): int
