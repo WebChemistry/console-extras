@@ -76,7 +76,7 @@ final class KubernetesConfig
 		$this->insertDeepKey($config, 'spec.failedJobsHistoryLimit', $options['failedJobsHistoryLimit'] ?? null);
 		$this->insertDeepKey($config, 'spec.concurrencyPolicy', $options['concurrencyPolicy'] ?? null);
 		$this->insertDeepKey($config, 'spec.timeZone', $options['timeZone'] ?? null);
-		$this->insertDeepKey($config, 'spec.ttlSecondsAfterFinished', $options['ttlSecondsAfterFinished'] ?? null);
+		$this->insertDeepKey($config, 'spec.jobTemplate.spec.ttlSecondsAfterFinished', $options['ttlSecondsAfterFinished'] ?? null);
 
 		if ($this->namespace) {
 			$config['metadata']['namespace'] = $this->namespace;
