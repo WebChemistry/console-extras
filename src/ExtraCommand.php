@@ -135,12 +135,26 @@ abstract class ExtraCommand extends Command
 
 		try {
 			$this->exec($input, $output);
-		} catch (TerminateCommand $exception) {
+		} catch (Throwable $exception) {
+			if ($exception instanceof TerminateCommand) {
+				if ($exception->getTerminateCode() === self::SUCCESS) {
+					foreach ($this->onSuccess as $callback) {
+						$callback($this, $input, $output);
+					}
+				} else {
+					foreach ($this->onError as $callback) {
+						$callback($this, $input, $output);
+					}
+				}
+
+				return $exception->getTerminateCode();
+			}
+
 			foreach ($this->onError as $callback) {
 				$callback($this, $input, $output);
 			}
 
-			return $exception->getTerminateCode();
+			throw $exception;
 		}
 
 		foreach ($this->onSuccess as $callback) {
