@@ -24,31 +24,32 @@ final class SentryIntegration
 		$monitorConfig = new MonitorConfig(MonitorSchedule::crontab($job->schedule), 5, 10);
 
 		$start = null;
+		$checkInId = null;
 
-		$command->onStart[] = function () use ($job, $monitorConfig, &$start): void {
-			captureCheckIn($job->slug, CheckInStatus::inProgress(), monitorConfig: $monitorConfig);
+		$command->onStart[] = function () use ($job, $monitorConfig, &$start, &$checkInId): void {
+			$checkInId = captureCheckIn($job->slug, CheckInStatus::inProgress(), monitorConfig: $monitorConfig);
 
 			$start = microtime(true);
 		};
 
-		$command->onSuccess[] = function () use ($job, $monitorConfig, &$start): void {
+		$command->onSuccess[] = function () use ($job, $monitorConfig, &$start, &$checkInId): void {
 			$duration = null;
 
 			if ($start !== null) {
 				$duration = microtime(true) - $start;
 			}
 
-			captureCheckIn($job->slug, CheckInStatus::ok(), $duration, $monitorConfig);
+			captureCheckIn($job->slug, CheckInStatus::ok(), $duration, $monitorConfig, $checkInId);
 		};
 
-		$command->onError[] = function () use ($job, $monitorConfig, &$start): void {
+		$command->onError[] = function () use ($job, $monitorConfig, &$start, &$checkInId): void {
 			$duration = null;
 
 			if ($start !== null) {
 				$duration = microtime(true) - $start;
 			}
 
-			captureCheckIn($job->slug, CheckInStatus::error(), $duration, $monitorConfig);
+			captureCheckIn($job->slug, CheckInStatus::error(), $duration, $monitorConfig, $checkInId);
 		};
 	}
 
