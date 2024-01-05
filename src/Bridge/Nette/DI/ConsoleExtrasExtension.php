@@ -9,7 +9,7 @@ use stdClass;
 use WebChemistry\ConsoleExtras\Command\Config\KubernetesConfig;
 use WebChemistry\ConsoleExtras\Command\ListJobsCommand;
 use WebChemistry\ConsoleExtras\Command\MakeJobsCommand;
-use WebChemistry\ConsoleExtras\Command\RunJobCommand;
+use WebChemistry\ConsoleExtras\Command\RunJobsCommand;
 
 final class ConsoleExtrasExtension extends CompilerExtension
 {
@@ -40,7 +40,7 @@ final class ConsoleExtrasExtension extends CompilerExtension
 
 		if ($config->jobs !== null) {
 			$builder->addDefinition($this->prefix('jobs.commands.run'))
-				->setFactory(RunJobCommand::class);
+				->setFactory(RunJobsCommand::class);
 
 			$builder->addDefinition($this->prefix('jobs.commands.list'))
 				->setFactory(ListJobsCommand::class);

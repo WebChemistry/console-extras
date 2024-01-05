@@ -3,7 +3,7 @@
 namespace WebChemistry\ConsoleExtras\Command\Config;
 
 use WebChemistry\ConsoleExtras\Command\CommandJobGroup;
-use WebChemistry\ConsoleExtras\Command\RunJobCommand;
+use WebChemistry\ConsoleExtras\Command\RunJobsCommand;
 
 /**
  * @phpstan-type KubernetesConfigOptions array{
@@ -95,7 +95,7 @@ final class KubernetesConfig
 		$backoffLimit = $options['backoffLimit'] ?? $this->backoffLimit;
 		$restartPolicy = $options['restartPolicy'] ?? 'Never';
 
-		$commandBuilder = RunJobCommand::createBuilder();
+		$commandBuilder = RunJobsCommand::createBuilder();
 
 		foreach ($group->jobs as $job) {
 			$commandBuilder->add($job->className, $job->arguments);

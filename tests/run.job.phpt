@@ -4,7 +4,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tester\Assert;
 use WebChemistry\ConsoleExtras\Attribute\Argument;
-use WebChemistry\ConsoleExtras\Command\RunJobCommand;
+use WebChemistry\ConsoleExtras\Command\RunJobsCommand;
 use WebChemistry\ConsoleExtras\ExtraCommand;
 
 require __DIR__ . '/bootstrap.phpt';
@@ -25,8 +25,8 @@ class FooCommand extends ExtraCommand {
 
 };
 
-runConsoleApp(new RunJobCommand(), [
-	'json' => RunJobCommand::createBuilder()->add(FooCommand::class, [
+runConsoleApp(new RunJobsCommand(), [
+	'json' => RunJobsCommand::createBuilder()->add(FooCommand::class, [
 		'required' => 'required',
 	])->build(),
 	'--memoryLimit' => 150,
@@ -34,8 +34,8 @@ runConsoleApp(new RunJobCommand(), [
 	new FooCommand(),
 ]);
 
-Assert::same("'required'", runConsoleApp(new RunJobCommand(), [
-	'json' => RunJobCommand::createBuilder()->add(FooCommand::class, [
+Assert::same("'required'", runConsoleApp(new RunJobsCommand(), [
+	'json' => RunJobsCommand::createBuilder()->add(FooCommand::class, [
 		'required' => 'required',
 	])->build(),
 ], commands: [
@@ -43,12 +43,12 @@ Assert::same("'required'", runConsoleApp(new RunJobCommand(), [
 ]));
 Assert::same("Running FooCommand
 'required'Running FooCommand
-'required2'", runConsoleApp(new RunJobCommand(), [
-	'json' => RunJobCommand::createBuilder()->add(FooCommand::class, [
+'required2'", runConsoleApp(new RunJobsCommand(), [
+	'json' => RunJobsCommand::createBuilder()->add(FooCommand::class, [
 		'required' => 'required',
 	])->add(FooCommand::class, [
 		'required' => 'required2',
 	])->build(),
 ], commands: [
 	new FooCommand(),
-]));
+], autoExit: true));

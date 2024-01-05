@@ -7,17 +7,27 @@ use Nette\Utils\Json;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 use WebChemistry\ConsoleExtras\Attribute\Argument;
 use WebChemistry\ConsoleExtras\Command\Builder\RunJobBuilder;
+use WebChemistry\ConsoleExtras\Command\Exception\RunJobsFailedException;
 use WebChemistry\ConsoleExtras\ExtraCommand;
 
-final class RunJobCommand extends ExtraCommand
+final class RunJobsCommand extends ExtraCommand
 {
 
 	protected static $defaultName = 'jobs:run';
 
 	#[Argument]
 	protected string $json;
+
+	public function __construct(
+		?string $name = null,
+		private bool $printErrors = true,
+	)
+	{
+		parent::__construct($name);
+	}
 
 	public static function createBuilder(): RunJobBuilder
 	{
@@ -65,12 +75,35 @@ final class RunJobCommand extends ExtraCommand
 
 		$printName = count($toRun) > 1;
 
+		$autoExit = $application->isAutoExitEnabled();
+		$catchExceptions = $application->areExceptionsCaught();
+
+		$application->setAutoExit(false);
+		$application->setCatchExceptions(false);
+
+		$exceptions = [];
+
 		foreach ($toRun as [$className, $input]) {
 			if ($printName) {
 				$this->helper->comment(sprintf('Running %s', $className));
 			}
 
-			$application->run($input, $output);
+			try {
+				$application->run($input, $output);
+			} catch (Throwable $exception) {
+				if ($this->printErrors) {
+					$this->helper->error($exception->getMessage());
+				}
+
+				$exceptions[] = $exception;
+			}
+		}
+
+		$application->setAutoExit($autoExit);
+		$application->setCatchExceptions($catchExceptions);
+
+		if ($exceptions) {
+			throw new RunJobsFailedException($exceptions);
 		}
 	}
 
