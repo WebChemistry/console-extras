@@ -3,7 +3,8 @@
 namespace WebChemistry\ConsoleExtras\Command\Config;
 
 use WebChemistry\ConsoleExtras\Command\CommandJobGroup;
-use WebChemistry\ConsoleExtras\Command\RunJobsCommand;
+use WebChemistry\ConsoleExtras\Extractor\Serializer\JobSerializer;
+use WebChemistry\ConsoleExtras\Extractor\Serializer\JsonJobSerializer;
 
 /**
  * @phpstan-type KubernetesConfigOptions array{
@@ -42,6 +43,11 @@ final class KubernetesConfig
 		];
 
 		$this->container = array_merge($this->container, $container);
+	}
+
+	public function getSerializer(): JobSerializer
+	{
+		return new JsonJobSerializer();
 	}
 
 	/**
@@ -88,22 +94,17 @@ final class KubernetesConfig
 	/**
 	 * @return mixed[]
 	 */
-	public function createJobTemplate(CommandJobGroup $group): array
+	private function createJobTemplate(CommandJobGroup $group): array
 	{
 		$options = $group->options;
+		$serializer = $this->getSerializer();
 
 		$backoffLimit = $options['backoffLimit'] ?? $this->backoffLimit;
 		$restartPolicy = $options['restartPolicy'] ?? 'Never';
 
-		$commandBuilder = RunJobsCommand::createBuilder();
-
-		foreach ($group->jobs as $job) {
-			$commandBuilder->add($job->className, $job->arguments);
-		}
-
 		$container = $this->container;
 		$container['command'][] = 'jobs:run'; // @phpstan-ignore-line
-		$container['command'][] = $commandBuilder->build(); // @phpstan-ignore-line
+		$container['command'][] = $serializer->serialize($group->jobs); // @phpstan-ignore-line
 
 		$this->insertDeepKey($container, 'resources.requests.cpu', $options['cpu'] ?? null);
 		$this->insertDeepKey($container, 'resources.requests.memory', $options['memory'] ?? null);

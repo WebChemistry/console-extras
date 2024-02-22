@@ -4,8 +4,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tester\Assert;
 use WebChemistry\ConsoleExtras\Attribute\Argument;
+use WebChemistry\ConsoleExtras\Command\CommandJob;
+use WebChemistry\ConsoleExtras\Command\Config\KubernetesConfig;
 use WebChemistry\ConsoleExtras\Command\RunJobsCommand;
 use WebChemistry\ConsoleExtras\ExtraCommand;
+use WebChemistry\ConsoleExtras\Extractor\Serializer\JsonJobSerializer;
 
 require __DIR__ . '/bootstrap.phpt';
 
@@ -23,32 +26,39 @@ class FooCommand extends ExtraCommand {
 		])));
 	}
 
-};
+}
 
-runConsoleApp(new RunJobsCommand(), [
-	'json' => RunJobsCommand::createBuilder()->add(FooCommand::class, [
+function createJob(string $className, array $arguments = [], string $commandName = 'foo'): CommandJob
+{
+	return new CommandJob($className, 'void', $commandName, $arguments, '', null, 'slug', []);
+}
+
+$serializer = new JsonJobSerializer();
+
+runConsoleApp(new RunJobsCommand(config: new KubernetesConfig('')), [
+	'arg' => $serializer->serialize([createJob(FooCommand::class, [
 		'required' => 'required',
-	])->build(),
+	])]),
 	'--memoryLimit' => 150,
 ], commands: [
 	new FooCommand(),
 ]);
 
-Assert::same("'required'", runConsoleApp(new RunJobsCommand(), [
-	'json' => RunJobsCommand::createBuilder()->add(FooCommand::class, [
+Assert::same("'required'", runConsoleApp(new RunJobsCommand(config: new KubernetesConfig('')), [
+	'arg' => $serializer->serialize([createJob(FooCommand::class, [
 		'required' => 'required',
-	])->build(),
+	])]),
 ], commands: [
 	new FooCommand(),
 ]));
 Assert::same("Running FooCommand
 'required'Running FooCommand
-'required2'", runConsoleApp(new RunJobsCommand(), [
-	'json' => RunJobsCommand::createBuilder()->add(FooCommand::class, [
+'required2'", runConsoleApp(new RunJobsCommand(config: new KubernetesConfig('')), [
+	'arg' => $serializer->serialize([createJob(FooCommand::class, [
 		'required' => 'required',
-	])->add(FooCommand::class, [
+	]), createJob(FooCommand::class, [
 		'required' => 'required2',
-	])->build(),
+	])]),
 ], commands: [
 	new FooCommand(),
 ], autoExit: true));
