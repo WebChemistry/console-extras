@@ -113,9 +113,11 @@ final class CommandPropertyExtractor
 				$optional = $reflection->hasDefaultValue() || in_array('bool', $types, true);
 			}
 
+			$kebabCase = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', lcfirst($reflection->getName())));
+
 			$options[] = new CommandOption(
 				$reflection->getName(),
-				$reflection->getName(),
+				$kebabCase,
 				$attribute->shortcut,
 				$switch,
 				!$optional,
