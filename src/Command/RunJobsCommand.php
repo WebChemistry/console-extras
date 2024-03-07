@@ -53,6 +53,7 @@ final class RunJobsCommand extends ExtraCommand
 					if (is_a($command, $className, true)) {
 						$toRun[] = [
 							$className,
+							$command->getName(),
 							new ArrayInput([
 								'command' => $command->getName(),
 								...$job->arguments,
@@ -68,6 +69,7 @@ final class RunJobsCommand extends ExtraCommand
 				if ($command->getName() === $job->commandName) {
 					$toRun[] = [
 						$className,
+						$command->getName(),
 						new ArrayInput([
 							'command' => $command->getName(),
 							...$job->arguments,
@@ -89,30 +91,28 @@ final class RunJobsCommand extends ExtraCommand
 		$application->setAutoExit(false);
 		$application->setCatchExceptions(false);
 
-		$exceptions = [];
-
-		foreach ($toRun as [$className, $input]) {
+		foreach ($toRun as [$className, $commandName, $input]) {
 			if ($printName) {
-				$this->helper->comment(sprintf('Running %s', $className));
+				$this->helper->comment(sprintf('Running %s (%s)', $className, $commandName));
 			}
 
 			try {
 				$application->run($input, $output);
 			} catch (Throwable $exception) {
 				if ($this->printErrors) {
-					$this->helper->error($exception->getMessage());
-				}
+					$this->helper->error(sprintf('%s failed: %s', $commandName, $exception->getMessage()), false);
 
-				$exceptions[] = $exception;
+					foreach ($exception->getTrace() as $trace) {
+						if (isset($trace['file']) && isset($trace['line'])) {
+							$this->helper->error(sprintf(' in %s:%s', $trace['file'], $trace['line']), false);
+						}
+					}
+				}
 			}
 		}
 
 		$application->setAutoExit($autoExit);
 		$application->setCatchExceptions($catchExceptions);
-
-		if ($exceptions) {
-			throw new RunJobsFailedException($exceptions);
-		}
 	}
 
 }
