@@ -62,7 +62,7 @@ final class ConsoleHelper
 		$this->terminate();
 	}
 
-	public function error(string $error): void
+	public function error(string $error, bool $prependErrorText = true): void
 	{
 		$this->errors = true;
 
@@ -70,7 +70,11 @@ final class ConsoleHelper
 			$this->output->getFormatter()->setStyle('error', new OutputFormatterStyle('red'));
 		}
 
-		$this->output->writeln(sprintf('<error>Error: %s</error>', $error));
+		if ($prependErrorText) {
+			$error = sprintf('Error: %s', $error);
+		}
+
+		$this->output->writeln(sprintf('<error>%s</error>', $error));
 	}
 
 	public function success(string $message): void
@@ -87,13 +91,17 @@ final class ConsoleHelper
 		$this->output->writeln(sprintf('<comment>%s</comment>', $message));
 	}
 
-	public function warning(string $message): void
+	public function warning(string $message, bool $prependWarningText = true): void
 	{
 		if (!$this->output->getFormatter()->hasStyle('warning')) {
 			$this->output->getFormatter()->setStyle('warning', new OutputFormatterStyle('bright-yellow'));
 		}
 
-		$this->output->writeln(sprintf('<warning>Warning: %s</warning>', $message));
+		if ($prependWarningText) {
+			$message = sprintf('Warning: %s', $message);
+		}
+
+		$this->output->writeln(sprintf('<warning>%s</warning>', $message));
 	}
 
 	public function confirmToContinue(bool $default = false, string $message = 'Continue?'): void
