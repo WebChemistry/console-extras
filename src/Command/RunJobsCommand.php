@@ -91,13 +91,20 @@ final class RunJobsCommand extends ExtraCommand
 		$application->setAutoExit(false);
 		$application->setCatchExceptions(false);
 
+		$success = true;
+
 		foreach ($toRun as [$className, $commandName, $input]) {
 			if ($printName) {
 				$this->helper->comment(sprintf('Running %s (%s)', $className, $commandName));
 			}
 
 			try {
-				$application->run($input, $output);
+				$code = $application->run($input, $output);
+
+				if ($code !== 0) {
+					$success = false;
+				}
+
 			} catch (Throwable $exception) {
 				if ($this->printErrors) {
 					$this->helper->error(sprintf('%s failed: %s', $commandName, $exception->getMessage()), false);
@@ -113,6 +120,12 @@ final class RunJobsCommand extends ExtraCommand
 
 		$application->setAutoExit($autoExit);
 		$application->setCatchExceptions($catchExceptions);
+
+		if (!$success) {
+			$this->helper->terminate(false);
+		}
+
+		$this->helper->terminateIfErrors();
 	}
 
 }

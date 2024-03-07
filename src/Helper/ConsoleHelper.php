@@ -122,4 +122,11 @@ final class ConsoleHelper
 		throw new SuccessfullyTerminateCommand();
 	}
 
+	public function terminateIfErrors(): void
+	{
+		if ($this->errors) {
+			$this->terminate(false);
+		}
+	}
+
 }
