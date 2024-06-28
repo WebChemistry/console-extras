@@ -40,6 +40,8 @@ abstract class ExtraCommand extends Command
 	/** @var array<callable(static $command, InputInterface $input, OutputInterface $output): void> */
 	public array $onError = [];
 
+	private float $startTime;
+
 	public function __construct(?string $name = null)
 	{
 		parent::__construct($name);
@@ -132,6 +134,8 @@ abstract class ExtraCommand extends Command
 			}
 		}
 
+		$this->startTime = microtime(true);
+
 		try {
 			$this->exec($input, $output);
 		} catch (Throwable $exception) {
@@ -164,5 +168,20 @@ abstract class ExtraCommand extends Command
 	}
 
 	abstract protected function exec(InputInterface $input, OutputInterface $output): void;
+
+	protected function printDevelopmentInfo(OutputInterface $output): void
+	{
+		$output->writeln('');
+		$output->writeln(sprintf(
+			'Execution time: %sms, Memory Peak: %sMB',
+			$this->formatNumber((microtime(true) - $this->startTime) * 1000),
+			$this->formatNumber(memory_get_peak_usage(true) / 1024 / 1024),
+		));
+	}
+
+	private function formatNumber(float|int $num): string
+	{
+		return rtrim(rtrim(number_format($num, 2), '0'), '.');
+	}
 
 }
